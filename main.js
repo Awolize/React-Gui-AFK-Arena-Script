@@ -1,31 +1,70 @@
-// Modules to control application life and create native browser window
-const { app, BrowserWindow, dialog } = require('electron');
+const { app, BrowserWindow, Tray, Menu } = require('electron');
 const path = require('path');
 const serve = require('electron-serve');
 const loadURL = serve({ directory: 'build' });
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
-let mainWindow;
+var config = require('./config.json');
 
 function isDev() {
     return !app.isPackaged;
 }
 
-function createWindow() {
-    // Create the browser window.
-    mainWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
-        webPreferences: {
-            nodeIntegration: true
+require('@electron/remote/main').initialize()
+// Handle creating/removing shortcuts on Windows when installing/uninstalling.
+if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
+    app.quit();
+}
+
+let mainWindow;
+let tray = null;
+let iconPath = isDev() ? path.join(process.cwd(), 'public/icon.ico') : path.join(__dirname, 'build/icon.ico')
+
+function createTray() {
+    tray = new Tray(iconPath)
+
+    var contextMenu = Menu.buildFromTemplate([
+        {
+            label: 'Show App', click: function () {
+                mainWindow.show()
+            }, type: 'normal'
         },
-        // Use this in development mode.
-        icon: isDev() ? path.join(process.cwd(), 'public/logo512.png') : path.join(__dirname, 'build/logo512.png'),
-        // Use this in production mode.
-        // icon: path.join(__dirname, 'build/logo512.png'),
-        show: false
+        {
+            label: 'Quit', click: function () {
+                app.isQuiting = true
+                app.quit()
+            }, type: 'normal'
+        }
+    ])
+
+    tray.on('click', function (e) {
+        mainWindow.show()
     });
+
+    tray.setContextMenu(contextMenu)
+    tray.setToolTip('AFK Helper')
+}
+
+function clearTray() {
+    if (tray)
+        tray.destroy()
+    tray = null
+}
+
+const createMainWindow = () => {
+    // Create the browser window.
+    const mainWindow = new BrowserWindow({
+        width: 925, //(config.debug ? 200 : 0)
+        height: 980,
+        frame: true,
+        icon: iconPath,
+        webPreferences: {
+            enableRemoteModule: true,
+            nodeIntegration: true,
+            contextIsolation: false,
+        },
+        show: true
+    });
+
 
     // This block of code is intended for development purpose only.
     // Delete this entire block of code when you are ready to package the application.
@@ -34,39 +73,61 @@ function createWindow() {
     } else {
         loadURL(mainWindow);
     }
-    
-    // Uncomment the following line of code when app is ready to be packaged.
-    // loadURL(mainWindow);
 
     // Open the DevTools and also disable Electron Security Warning.
-    // process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = true;
-    // mainWindow.webContents.openDevTools();
+    process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = true;
 
-    // Emitted when the window is closed.
-    mainWindow.on('closed', function () {
-        // Dereference the window object, usually you would store windows
-        // in an array if your app supports multi windows, this is the time
-        // when you should delete the corresponding element.
-        mainWindow = null
-    });
+    // Open the DevTools.
+    if (config.debug) {
+        devtools = new BrowserWindow()
+        mainWindow.webContents.setDevToolsWebContents(devtools.webContents)
+        mainWindow.webContents.openDevTools({ mode: 'detach' })
+    }
+
+    mainWindow.setMenuBarVisibility(false)
+
+    // and load the index.html of the app.
+    //mainWindow.loadFile(path.join(__dirname, '/main/index.html'));
+
+    mainWindow.on('closed', function (event) {
+        clearTray()
+        app.quit();
+    })
+
+    mainWindow.on('show', function (event) {
+        clearTray()
+    })
+
+    mainWindow.on('minimize', function (event) {
+        event.preventDefault()
+        mainWindow.hide()
+        createTray()
+    })
 
     // Emitted when the window is ready to be shown
     // This helps in showing the window gracefully.
-    mainWindow.once('ready-to-show', () => {
-        mainWindow.show()
-    });
-}
+    // mainWindow.once('ready-to-show', () => {
+    //     mainWindow.show()
+    // });
+
+    return mainWindow;
+};
+
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', () => {
+    mainWindow = createMainWindow();
+});
 
-// Quit when all windows are closed.
-app.on('window-all-closed', function () {
-    // On macOS it is common for applications and their menu bar
-    // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform !== 'darwin') app.quit()
+// Quit when all windows are closed, except on macOS. There, it's common
+// for applications and their menu bar to stay active until the user quits
+// explicitly with Cmd + Q.
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+        app.quit();
+    }
 });
 
 app.on('activate', function () {
@@ -74,5 +135,3 @@ app.on('activate', function () {
     // dock icon is clicked and there are no other windows open.
     if (mainWindow === null) createWindow()
 });
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
