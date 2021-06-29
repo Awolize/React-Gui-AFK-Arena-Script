@@ -305,4 +305,5 @@ $ yarn electron-pack # or npm run electron-pack
 <br/>
 
 <h3>📋 License: </h3>
-Licensed under the <a href="https://github.com/soulehshaikh99/create-react-electron-app/blob/master/LICENSE">MIT License</a>.
+Licensed under the <a href="https://github.com/soulehshaikh99/create-react-electron-app/blob/master/LICENSE">MIT License</a>.#   R e a c t - G u i - A F K - A r e n a - S c r i p t  
+ 
