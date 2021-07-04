@@ -1,8 +1,8 @@
 const { app, BrowserWindow, Tray, Menu } = require('electron');
 const path = require('path');
+const fs = require('fs')
 const serve = require('electron-serve');
 const loadURL = serve({ directory: 'build' });
-
 var config = require('./config.json');
 
 function isDev() {
@@ -54,7 +54,7 @@ const createMainWindow = () => {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
         width: 925, //(config.debug ? 200 : 0)
-        height: 980,
+        height: 1000,
         frame: true,
         icon: iconPath,
         webPreferences: {
@@ -135,3 +135,226 @@ app.on('activate', function () {
     // dock icon is clicked and there are no other windows open.
     if (mainWindow === null) createWindow()
 });
+
+
+
+
+const { ipcMain } = require('electron')
+const childProcess = require("child_process");
+
+
+var lastModified = new Date().toLocaleDateString() + " - " + new Date().toLocaleTimeString()
+var noxPath = path.normalize('C:/Program Files (x86)/Nox/bin/Nox.exe')
+var scriptPath = path.normalize('C:/Users/alexs/Desktop/AFK-Daily-master/AFK-Arena-Script/deploy.sh')
+var bashPath = path.normalize('C:/Program Files/Git/bin/sh.exe')
+
+const electron = require('electron');
+const userDataPath = (electron.app || electron.remote.app).getPath('userData');
+const savePath = path.join(userDataPath, 'save.json');
+
+console.log(savePath);
+
+ipcMain.on('readStorage', (event) => {
+    console.log('readStorage');
+    try {
+        const fileJson = JSON.parse(fs.readFileSync(savePath));
+        lastModified = path.normalize(fileJson.lastModified)
+        noxPath = path.normalize(fileJson.nox)
+        scriptPath = path.normalize(fileJson.script)
+        bashPath = path.normalize(fileJson.bash)
+
+        console.log(fileJson);
+
+        const settings = {
+            lastModified: lastModified,
+            nox: noxPath,
+            script: scriptPath,
+            bash: bashPath
+        };
+
+        event.reply("newData", JSON.stringify(settings, null, 4))
+    }
+    catch (err) {
+        alert("Could not read paths from Save File: " + err)
+        resetPaths();
+    }
+})
+
+
+ipcMain.on('updateData', (event, paths) => {
+    console.log('updateData');
+    noxPath = paths.nox
+    scriptPath = paths.script
+    bashPath = paths.bash
+})
+
+
+ipcMain.on('saveStorage', (event) => {
+    console.log("saveStorage");
+
+    this.setState({ lastModified: new Date().toLocaleDateString() + " - " + new Date().toLocaleTimeString() })
+    const settings = {
+        lastModified: lastModified,
+        nox: noxPath,
+        script: scriptPath,
+        bash: bashPath
+    };
+
+    fs.writeFileSync(savePath, JSON.stringify(settings, null, 4), 'utf-8');
+    event.reply("newData", JSON.stringify(settings, null, 4))
+})
+
+
+ipcMain.on('resetStorage', (event) => {
+    console.log("resetStorage");
+    try {
+        resetPaths();
+
+        this.setState({ lastModified: new Date().toLocaleDateString() + " - " + new Date().toLocaleTimeString() })
+        const settings = {
+            lastModified: lastModified,
+            nox: noxPath,
+            script: scriptPath,
+            bash: bashPath
+        };
+
+        fs.writeFileSync(savePath, JSON.stringify(settings, null, 4), 'utf-8');
+        console.log('Save file has been reset: ' + savePath);
+        event.reply("newData", JSON.stringify(settings, null, 4))
+    }
+    catch (e) {
+        console.log('Failed saving to file:' + e);
+    }
+})
+
+function resetPaths() {
+    noxPath = path.normalize('C:/Program Files (x86)/Nox/bin/Nox.exe')
+    scriptPath = path.normalize('C:/Users/alexs/Desktop/AFK-Daily-master/AFK-Arena-Script/deploy.sh')
+    bashPath = path.normalize('C:/Program Files/Git/bin/sh.exe')
+}
+
+
+// -- Config --
+
+ipcMain.on('readConfig', (event) => {
+    console.log('readConfig');
+    try {
+        let configPath = path.dirname(scriptPath) + "/config.sh"
+        console.log(configPath);
+        fs.readFile(configPath, 'utf8', (err, data) => {
+            if (err) {
+                console.error(err)
+                return
+            }
+            event.reply("readConfig", data)
+        })
+    }
+    catch (err) {
+        console.error("Couldnt read Config file: " + err);
+    }
+})
+
+ipcMain.on('writeConfig', (event) => {
+
+})
+
+
+// ------ HANDLE SCRIPT ---------------
+// ------ HANDLE SCRIPT ---------------
+// ------ HANDLE SCRIPT ---------------
+
+ipcMain.on('startNox', (event, replayChannel) => startNox(event, replayChannel))
+ipcMain.on('startScript', (event, replayChannel) => startScript(event, replayChannel))
+
+function startNox(event = null, replayChannel = "") {
+    console.log(noxPath);
+    noxPath = noxPath.replaceAll('\\', '/');
+    run_script(event, replayChannel, `"${noxPath}"`)
+}
+
+function startScript(event = null, replayChannel = "") {
+    let scriptDir = path.dirname(scriptPath).replaceAll('\\', '/')
+    let scriptName = path.basename(scriptPath).replaceAll('\\', '/')
+    let args = ['-c ' + `"cd ${scriptDir}; ./${scriptName} -n"`]
+    //"C:\Program Files\Git\bin\sh.exe" - c "cd /c/Users/alexs/Desktop/AFK-Daily-master/AFK-Daily"
+
+    run_script(event, replayChannel, `"${bashPath.replaceAll('\\', '/')}"`, args)
+}
+
+function run_script(event = null, replyChannel, command, args) {
+
+    const child = childProcess.spawn(command, args, {
+        encoding: "utf8",
+        shell: true
+    });
+
+    console.log('spawn called');
+    console.log("command:" + command);
+    console.log("args: " + args);
+
+    child.on("error", (error) => {
+        error = error.toString();
+        if (event) {
+            event.reply(replyChannel, error)
+        }
+
+    });
+
+    child.stdout.on("data", (data) => {
+        //Here is the output
+        data = data.toString();
+
+        if (event) {
+            event.reply(replyChannel, data)
+        }
+    });
+
+    child.stderr.on("data", (data) => {
+        //Here is the output from the command
+        data = data.toString();
+
+        if (event) {
+            event.reply(replyChannel, data)
+        }
+    });
+
+    child.on("close", (code) => {
+        console.log("Process ended:" + code);
+    });
+}
+
+
+// ------ HANDLE SCRIPT ---------------
+// ------ HANDLE SCRIPT ---------------
+// ------ HANDLE SCRIPT ---------------
+
+
+
+// Run every day at 06.00
+const schedule = require('node-schedule');
+const job = schedule.scheduleJob('0 6 * * *', async () => dailySchedule()); // How often script should run. cronjob style
+
+async function dailySchedule() {
+    clearScriptOutput()
+    startNox()
+    await sleep(20000)
+    startScript()
+    await sleep(10000)
+
+    while (errorInScriptOutput()) {
+        clearScriptOutput()
+        startScript()
+        await sleep(10000)
+    }
+}
+
+function errorInScriptOutput() {
+    let text = getCommandOutput().innerHTML
+    let n = text.includes("Error");
+
+    if (n) {
+        clearScriptOutput
+        return true
+    }
+    return false
+}

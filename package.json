@@ -43,8 +43,8 @@
     "bulma": "^0.9.3",
     "electron-serve": "^1.0.0",
     "electron-squirrel-startup": "^1.0.0",
+    "html-react-parser": "^1.2.7",
     "node-schedule": "^2.0.0",
-    "react-html-parser": "^2.0.2",
     "react-tabs": "^3.2.2"
   },
   "devDependencies": {
