@@ -254,8 +254,21 @@ ipcMain.on('readConfig', (event) => {
     }
 })
 
-ipcMain.on('writeConfig', (event) => {
-
+ipcMain.on('writeConfig', (event, data) => {
+    console.log('writeConfig');
+    try {
+        let configPath = path.dirname(scriptPath) + "/config.sh"
+        console.log(configPath);
+        fs.writeFile(configPath, data, err => {
+            if (err) {
+                console.error(err)
+                return
+            }
+        })
+    }
+    catch (err) {
+        console.error("Couldnt writeConfig Config file: " + err);
+    }
 })
 
 

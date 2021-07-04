@@ -36,7 +36,10 @@ export default class RunScript extends Component {
     }
 
     scrollToBottom = () => {
-        this.messagesEnd.scrollIntoView({ behavior: "auto" });
+        try {
+            this.messagesEnd.scrollIntoView({ behavior: "auto" });
+        }
+        catch (e) { }
     }
 
     startNox() {

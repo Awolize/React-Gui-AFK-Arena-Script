@@ -21,16 +21,16 @@ export default class ConfigEditor extends Component {
     }
 
     readConfigFile() {
-        ipcRenderer.send("readConfig", this.state.paths);
+        ipcRenderer.send("readConfig");
     }
-    writeConfigFile() {
-        ipcRenderer.send("writeConfig", this.state.paths);
+    writeConfigFile(data) {
+        ipcRenderer.send("writeConfig", data);
     }
 
-    handleChange(event, data) {
+    handleChange(event) {
         console.log("new change");
-        console.log(event);
-        console.log(data);
+        this.setState({ text: event.target.value })
+        this.writeConfigFile(event.target.value)
     }
 
 
@@ -42,7 +42,7 @@ export default class ConfigEditor extends Component {
                     className="textarea"
                     placeholder="Start writing here.."
                     value={this.state.text}
-                    onChange={this.handleChange}
+                    onChange={(event) => this.handleChange(event)}
                 />
             </section>
         )
