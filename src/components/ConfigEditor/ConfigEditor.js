@@ -11,13 +11,18 @@ export default class ConfigEditor extends Component {
             lastModified: "[Loading..]",
             text: "[Loading..]"
         }
+    }
 
+    componentDidMount() {
         ipcRenderer.on("readConfig", (event, data) => {
             this.setState({ text: data })
-            console.log(data);
         })
 
         this.readConfigFile()
+    }
+
+    componentWillUnmount() {
+        ipcRenderer.removeAllListeners('readConfig')
     }
 
     readConfigFile() {
@@ -28,7 +33,6 @@ export default class ConfigEditor extends Component {
     }
 
     handleChange(event) {
-        console.log("new change");
         this.setState({ text: event.target.value })
         this.writeConfigFile(event.target.value)
     }

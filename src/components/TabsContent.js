@@ -1,12 +1,18 @@
-import React, { Component } from 'react'
-
+import React, { Component } from 'react';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import 'bulma/css/bulma.min.css';
 
 import SaveHandler from "./SaveHandler/SaveHandler";
 import ConfigEditor from "./ConfigEditor/ConfigEditor";
-import RunScript from "./RunScript";
+import Scheduler from "./Scheduler/Scheduler";
+import RunScript from "./RunScript/RunScript";
+
+const { ipcRenderer } = window.require('electron');
+
+function callback(msg) {
+    ipcRenderer.send(msg)
+}
 
 
 export default class TabsContent extends Component {
@@ -23,11 +29,11 @@ export default class TabsContent extends Component {
 
 
                     <TabPanel>
-                        <RunScript />
+                        <RunScript callback={callback} />
                     </TabPanel>
 
                     <TabPanel>
-                        <p>Scheduler</p>
+                        <Scheduler />
                     </TabPanel>
 
                     <TabPanel>

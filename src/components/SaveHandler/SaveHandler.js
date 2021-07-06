@@ -34,6 +34,11 @@ export default class SaveHandler extends Component {
         ipcRenderer.send("readStorage");
     }
 
+    componentWillUnmount() {
+        ipcRenderer.removeAllListeners('newData')
+    }
+
+
     handleChange() {
         ipcRenderer.send("updateData", this.state.paths);
     }

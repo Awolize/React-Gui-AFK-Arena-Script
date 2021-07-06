@@ -276,13 +276,28 @@ ipcMain.on('writeConfig', (event, data) => {
 // ------ HANDLE SCRIPT ---------------
 // ------ HANDLE SCRIPT ---------------
 
+const jobList = [""]
+
+
+var clientOutput;
+ipcMain.on('Mounted', (event) => {
+    clientOutput = event;
+    console.log("Mounted");
+    if (jobList[jobList.length - 1])
+        event.reply("Mounted", jobList[jobList.length - 1])
+})
+ipcMain.on('Unmounted', (event) => {
+    clientOutput = null;
+    console.log("Unmounted");
+})
+
 ipcMain.on('startNox', (event, replayChannel) => startNox(event, replayChannel))
 ipcMain.on('startScript', (event, replayChannel) => startScript(event, replayChannel))
 
 function startNox(event = null, replayChannel = "") {
     console.log(noxPath);
     noxPath = noxPath.replaceAll('\\', '/');
-    run_script(event, replayChannel, `"${noxPath}"`)
+    run_script(jobList.length, event, replayChannel, `"${noxPath}"`)
 }
 
 function startScript(event = null, replayChannel = "") {
@@ -291,48 +306,68 @@ function startScript(event = null, replayChannel = "") {
     let args = ['-c ' + `"cd ${scriptDir}; ./${scriptName} -n"`]
     //"C:\Program Files\Git\bin\sh.exe" - c "cd /c/Users/alexs/Desktop/AFK-Daily-master/AFK-Daily"
 
-    run_script(event, replayChannel, `"${bashPath.replaceAll('\\', '/')}"`, args)
+    run_script(jobList.length, event, replayChannel, `"${bashPath.replaceAll('\\', '/')}"`, args)
 }
 
-function run_script(event = null, replyChannel, command, args) {
+function run_script(jobIndex = jobList.length, event = null, replyChannel, command, args) {
 
     const child = childProcess.spawn(command, args, {
         encoding: "utf8",
         shell: true
     });
 
-    console.log('spawn called');
-    console.log("command:" + command);
-    console.log("args: " + args);
+    console.log(`Subprocess spawned with Command: ${command}, args: ${args}`);
+    jobList[jobIndex] = `Command: ${command}, args: ${args}\n`
 
     child.on("error", (error) => {
         error = error.toString();
-        if (event) {
-            event.reply(replyChannel, error)
-        }
+        jobList[jobIndex] += error // save on server
 
+        if (clientOutput) {
+            clientOutput.reply("replay-script", error) // send to client
+        }
+        else if (event) {
+            event.reply(replyChannel, error) // send to client
+        }
     });
 
     child.stdout.on("data", (data) => {
         //Here is the output
         data = data.toString();
+        jobList[jobIndex] += data // save on server
 
-        if (event) {
-            event.reply(replyChannel, data)
+        if (clientOutput) {
+            clientOutput.reply("replay-script", data) // send to client
         }
+        else if (event) {
+            event.reply(replyChannel, data) // send to client
+        }
+
     });
 
     child.stderr.on("data", (data) => {
         //Here is the output from the command
         data = data.toString();
+        jobList[jobIndex] += data // save on server
 
-        if (event) {
-            event.reply(replyChannel, data)
+        if (clientOutput) {
+            clientOutput.reply("replay-script", data) // send to client
+        }
+        else if (event) {
+            event.reply(replyChannel, data) // send to client
         }
     });
 
     child.on("close", (code) => {
         console.log("Process ended:" + code);
+        code = code + ""
+
+        if (clientOutput) {
+            clientOutput.reply("replay-script-status", code) // send to client
+        }
+        else if (event) {
+            event.reply("replay-script-status", code) // send to client
+        }
     });
 }
 
@@ -341,32 +376,42 @@ function run_script(event = null, replyChannel, command, args) {
 // ------ HANDLE SCRIPT ---------------
 // ------ HANDLE SCRIPT ---------------
 
-
+function sleep(ms) { // helper
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
+}
 
 // Run every day at 06.00
 const schedule = require('node-schedule');
 const job = schedule.scheduleJob('0 6 * * *', async () => dailySchedule()); // How often script should run. cronjob style
+//const job = schedule.scheduleJob('*/1 * * * *', async () => dailySchedule()); // How often script should run. cronjob style
+
+function clearScriptOutput(index) {
+    jobList[index] = "";
+}
 
 async function dailySchedule() {
-    clearScriptOutput()
+    let jobIndex = jobList.length;
+    clearScriptOutput(jobIndex)
     startNox()
     await sleep(20000)
     startScript()
     await sleep(10000)
 
-    while (errorInScriptOutput()) {
-        clearScriptOutput()
+    while (errorInScriptOutput(jobIndex)) {
+        clearScriptOutput(jobIndex)
         startScript()
         await sleep(10000)
     }
 }
 
-function errorInScriptOutput() {
-    let text = getCommandOutput().innerHTML
+function errorInScriptOutput(i) {
+    let text = jobList[i]
     let n = text.includes("Error");
 
     if (n) {
-        clearScriptOutput
+        clearScriptOutput(jobIndex)
         return true
     }
     return false

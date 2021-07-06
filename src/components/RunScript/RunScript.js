@@ -18,9 +18,28 @@ export default class RunScript extends Component {
         ipcRenderer.on("replay-script", (event, msg) => {
             this.appendOutput(msg)
         })
+        ipcRenderer.on("replay-script-status", (event, msg) => {
+            this.setState({ status: msg })
+        })
         ipcRenderer.on("replay-nox", (event, msg) => {
             this.appendOutput(msg)
         })
+
+        ipcRenderer.on("Mounted", (event, msg) => {
+            this.clearScriptOutput()
+            this.appendOutput(msg)
+        })
+
+        ipcRenderer.send('Mounted')
+    }
+
+    componentWillUnmount() {
+        if (this.props.callback)
+            this.props.callback("Unmounted")
+        ipcRenderer.removeAllListeners('replay-script')
+        ipcRenderer.removeAllListeners('replay-script-status')
+        ipcRenderer.removeAllListeners('replay-nox')
+        ipcRenderer.removeAllListeners('Mounted')
     }
 
     clearScriptOutput() {
