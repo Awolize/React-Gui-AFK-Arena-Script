@@ -9,11 +9,11 @@ export default class SaveHandler extends Component {
         super(props);
 
         this.state = {
-            lastModified: "[Loading..]",
+            lastModified: "...",
             paths: {
-                nox: "[Loading..]",
-                script: "[Loading..]",
-                bash: "[Loading..]"
+                nox: "...",
+                script: "...",
+                bash: "..."
             }
         }
     }
@@ -89,7 +89,7 @@ export default class SaveHandler extends Component {
                                                 className="file-input"
                                                 onChange={(event) => {
                                                     this.setState({ paths: { script: event.target.files[0].path } })
-                                                    this.handleChange();
+                                                    // this.handleChange();
                                                 }}
                                             />
                                             <span className="file-cta">

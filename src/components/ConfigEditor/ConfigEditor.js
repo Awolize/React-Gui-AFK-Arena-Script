@@ -8,8 +8,8 @@ export default class ConfigEditor extends Component {
         super(props);
 
         this.state = {
-            lastModified: "[Loading..]",
-            text: "[Loading..]"
+            lastModified: "...",
+            text: "..."
         }
     }
 
