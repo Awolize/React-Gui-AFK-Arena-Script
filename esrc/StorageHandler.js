@@ -35,8 +35,14 @@ class StorageHandler {
         this.setupIPC()
     }
 
+    getNoxPath() {
+        return noxPath;
+    }
     getScriptPath() {
         return scriptPath;
+    }
+    getBashPath() {
+        return bashPath;
     }
 
     setupIPC() {

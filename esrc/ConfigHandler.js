@@ -46,5 +46,4 @@ class ConfigHandler {
     }
 }
 
-
 module.exports = ConfigHandler
