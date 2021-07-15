@@ -143,7 +143,7 @@ class ScriptRunner {
     startScript(event = null, replayChannel = "") {
         let scriptDir = path.dirname(this.getScriptPath()).replaceAll('\\', '/')
         let scriptName = path.basename(this.getScriptPath()).replaceAll('\\', '/')
-        let args = ['-c ' + `"cd ${scriptDir}; ./${scriptName} -n"`]
+        let args = ['-c ' + `"cd ${scriptDir}; ./${scriptName} -bs"`]
         //"C:\Program Files\Git\bin\sh.exe" - c "cd /c/Users/alexs/Desktop/AFK-Daily-master/AFK-Daily"
 
         this.run_script(jobList.length, event, replayChannel, `"${this.getBashPath().replaceAll('\\', '/')}"`, args)

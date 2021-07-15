@@ -3,7 +3,7 @@
 
 class Scheduler {
     constructor(ensuredCompleteStart) {
-        this.ensuredCompleteStart = () => { return ensuredCompleteStart.call() }
+        this.ensuredCompleteStart = async () => { await ensuredCompleteStart.call() }
 
 
         const schedule = require('node-schedule');
