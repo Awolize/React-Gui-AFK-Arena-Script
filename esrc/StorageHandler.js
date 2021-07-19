@@ -13,6 +13,7 @@ var lastModified
 var noxPath
 var scriptPath
 var bashPath
+var platform
 
 class StorageHandler {
     constructor() {
@@ -31,6 +32,7 @@ class StorageHandler {
         noxPath = path.normalize('C:/Program Files (x86)/Nox/bin/Nox.exe')
         scriptPath = path.normalize('C:/Users/alexs/Desktop/AFK-Daily-master/AFK-Arena-Script/deploy.sh')
         bashPath = path.normalize('C:/Program Files/Git/bin/sh.exe')
+        platform = "bluestacks"
 
         this.setupIPC()
     }
@@ -45,6 +47,26 @@ class StorageHandler {
         return bashPath;
     }
 
+    getCommands(event) {
+        console.log(this.getNoxPath());
+        let noxPath = this.getNoxPath().replaceAll('\\', '/');
+        let noxCommand = `"${noxPath}"`
+
+        let scriptDir = path.dirname(this.getScriptPath()).replaceAll('\\', '/')
+        let scriptName = path.basename(this.getScriptPath()).replaceAll('\\', '/')
+
+        let args = ""
+        if (platform == "bluestacks")
+            args = ['-c ' + `"cd ${scriptDir}; ./${scriptName} -bs"`]
+        else
+            args = ['-c ' + `"cd ${scriptDir}; ./${scriptName} -n"`]
+
+        let scriptCommand = `"${this.getBashPath().replaceAll('\\', '/')}"` + " " + args
+
+
+        event.reply('showCommands', JSON.stringify({ nox: noxCommand, script: scriptCommand }, null, 4))
+    }
+
     setupIPC() {
         ipcMain.on('readStorage', (event) => {
             console.log('readStorage');
@@ -54,6 +76,7 @@ class StorageHandler {
                 noxPath = path.normalize(fileJson.nox)
                 scriptPath = path.normalize(fileJson.script)
                 bashPath = path.normalize(fileJson.bash)
+                platform = fileJson.platform
 
                 console.log(fileJson);
 
@@ -61,23 +84,34 @@ class StorageHandler {
                     lastModified: lastModified,
                     nox: noxPath,
                     script: scriptPath,
-                    bash: bashPath
+                    bash: bashPath,
+                    platform: platform
                 };
 
                 event.reply("newData", JSON.stringify(settings, null, 4))
+                this.getCommands(event)
             }
             catch (err) {
-                alert("Could not read paths from Save File: " + err)
+                console.error("Could not read paths from Save File: " + err)
                 this.resetPaths();
             }
         })
-
 
         ipcMain.on('updateData', (event, paths) => {
             console.log('updateData');
             noxPath = paths.nox
             scriptPath = paths.script
             bashPath = paths.bash
+
+
+            this.getCommands(event)
+        })
+
+        ipcMain.on('updatePlatformData', (event, data) => {
+            console.log('updatePlatformData');
+            platform = data.platform
+
+            this.getCommands(event)
         })
 
 
@@ -89,11 +123,14 @@ class StorageHandler {
                 lastModified: lastModified,
                 nox: noxPath,
                 script: scriptPath,
-                bash: bashPath
+                bash: bashPath,
+                platform: platform
             };
 
             fs.writeFileSync(this.savePath, JSON.stringify(settings, null, 4), 'utf-8');
             event.reply("newData", JSON.stringify(settings, null, 4))
+
+            console.log(this.savePath);
         })
 
 
@@ -107,7 +144,8 @@ class StorageHandler {
                     lastModified: lastModified,
                     nox: noxPath,
                     script: scriptPath,
-                    bash: bashPath
+                    bash: bashPath,
+                    platform: platform
                 };
 
                 fs.writeFileSync(this.savePath, JSON.stringify(settings, null, 4), 'utf-8');
@@ -124,6 +162,7 @@ class StorageHandler {
         noxPath = path.normalize('C:/Program Files (x86)/Nox/bin/Nox.exe')
         scriptPath = path.normalize('C:/Users/alexs/Desktop/AFK-Daily-master/AFK-Arena-Script/deploy.sh')
         bashPath = path.normalize('C:/Program Files/Git/bin/sh.exe')
+        platform = "bluestacks"
     }
 }
 

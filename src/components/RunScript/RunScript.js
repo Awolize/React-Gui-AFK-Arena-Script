@@ -84,7 +84,7 @@ export default class RunScript extends Component {
                         height: "2px",
                         borderWidth: "0",
                         width: "50%",
-                        margin: "30px auto"
+                        margin: "10px auto"
                     }}
 
                 />

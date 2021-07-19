@@ -14,7 +14,12 @@ export default class SaveHandler extends Component {
                 nox: "...",
                 script: "...",
                 bash: "..."
-            }
+            },
+            commands: {
+                nox: "...",
+                script: "..."
+            },
+            platform: "bluestacks"
         }
     }
 
@@ -27,20 +32,40 @@ export default class SaveHandler extends Component {
                     nox: saveData.nox,
                     script: saveData.script,
                     bash: saveData.bash
+                },
+                platform: saveData.platform
+            })
+        })
+
+        ipcRenderer.on("showCommands", (event, rawData) => {
+            const saveData = JSON.parse(rawData);
+            this.setState({
+                commands: {
+                    nox: saveData.nox,
+                    script: saveData.script
                 }
             })
         })
+
+
 
         ipcRenderer.send("readStorage");
     }
 
     componentWillUnmount() {
         ipcRenderer.removeAllListeners('newData')
+        ipcRenderer.removeAllListeners('showCommands')
     }
 
 
     handleChange() {
-        ipcRenderer.send("updateData", this.state.paths);
+        ipcRenderer.send("updateData", { paths: this.state.paths });
+    }
+
+    handlePlatformChange(event) {
+        console.log(event.target.value);
+        this.setState({ platform: event.target.value });
+        ipcRenderer.send("updatePlatformData", { platform: event.target.value });
     }
 
     render() {
@@ -133,6 +158,18 @@ export default class SaveHandler extends Component {
                                 </div>
                             </div>
                         </form>
+                    </li>
+                    <li className="tile">
+                        <div className="select">
+                            <select name="args" id="platform" value={this.state.platform} onChange={(event) => { this.handlePlatformChange(event) }}>
+                                <option value="bluestacks">Bluestacks</option>
+                                <option value="nox">Nox</option>
+                            </select>
+                        </div>
+                    </li>
+                    <li>
+                        <p>{this.state.commands.nox}</p>
+                        <p>{this.state.commands.script}</p>
                     </li>
                     <li>
                         <p>Save Last modified: {this.state.lastModified}</p>

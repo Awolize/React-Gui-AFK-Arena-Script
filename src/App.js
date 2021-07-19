@@ -23,7 +23,7 @@ function App() {
 
 
                 <div className="row content">
-                    <div id="tabs-with-content" style={{ height: "100%" }} >
+                    <div id="tabs-with-content" style={{ height: "100%", paddingRight: "3em" }} >
                         <TabsContent></TabsContent>
                     </div>
                 </div>
