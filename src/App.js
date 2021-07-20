@@ -5,8 +5,6 @@ import TabsContent from "./components/TabsContent";
 
 
 function App() {
-
-
     return (
         <div className="App">
             <div className="box">

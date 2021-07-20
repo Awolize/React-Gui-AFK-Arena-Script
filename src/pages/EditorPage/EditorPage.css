@@ -1,0 +1,24 @@
+ul.separator {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+}
+
+ul.separator li {
+    padding-top: .5em;
+}
+
+ul.separator li::after {
+    content: "";
+    display: block;
+    border-bottom: 1px solid #CCC;
+    padding-top: .5rem;
+}
+
+ul.separator li:last-child {
+    padding-top: 1em;
+}
+
+ul.separator li:last-child::after {
+    display: none;
+}

@@ -5,7 +5,7 @@ import 'bulma/css/bulma.min.css';
 
 import SaveHandler from "./SaveHandler/SaveHandler";
 import ConfigEditor from "./ConfigEditor/ConfigEditor";
-import Scheduler from "./Scheduler/Scheduler";
+import Scheduler from "../pages/SchedulerPage/SchedulerPage";
 import RunScript from "./RunScript/RunScript";
 
 const { ipcRenderer } = window.require('electron');

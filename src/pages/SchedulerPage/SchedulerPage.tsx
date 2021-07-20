@@ -1,11 +1,10 @@
 import React, { Component } from 'react'
-import "./Scheduler.css"
+import "./SchedulerPage.css"
 
 
 export default class Scheduler extends Component {
-    constructor(props) {
+    constructor(props: any) {
         super(props);
-        console.log("Scheduler constructor");
     }
 
     render() {
