@@ -5,15 +5,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Bower dependency directory (https://bower.io/)
-bower_components
-
 # Dependency directories
 node_modules/
-jspm_packages/
-
-# Testing
-/coverage
 
 # React Distribution
 build/
@@ -21,14 +14,3 @@ build/
 # Electron Distribution
 dist
 
-# Project Build Automation Directory
-private
-
-# Desktop Services Store on macOS
-.DS_Store
-
-# Local env files
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
