@@ -9,15 +9,15 @@ interface IProps { }
 interface IState {
     lastModified: Date | string,
     paths: {
-        nox: string,
+        platform: string,
         script: string,
         bash: string
     },
     commands: {
-        nox: string,
+        platform: string,
         script: string
     },
-    platform: string
+    platformArg: string
 
 }
 
@@ -28,15 +28,15 @@ export default class ConfigPage extends Component<IProps, IState> {
         this.state = {
             lastModified: "...",
             paths: {
-                nox: "...",
+                platform: "...",
                 script: "...",
                 bash: "..."
             },
             commands: {
-                nox: "...",
+                platform: "...",
                 script: "..."
             },
-            platform: "bluestacks"
+            platformArg: "bluestacks"
         }
     }
 
@@ -46,11 +46,11 @@ export default class ConfigPage extends Component<IProps, IState> {
             this.setState({
                 lastModified: saveData.lastModified,
                 paths: {
-                    nox: saveData.nox,
+                    platform: saveData.platform,
                     script: saveData.script,
                     bash: saveData.bash
                 },
-                platform: saveData.platform
+                platformArg: saveData.platformArg
             })
         })
 
@@ -58,7 +58,7 @@ export default class ConfigPage extends Component<IProps, IState> {
             const saveData = JSON.parse(rawData);
             this.setState({
                 commands: {
-                    nox: saveData.nox,
+                    platform: saveData.platform,
                     script: saveData.script
                 }
             })
@@ -76,12 +76,12 @@ export default class ConfigPage extends Component<IProps, IState> {
     handleChange() {
         console.log("Sending paths:", this.state.paths);
 
-        ipcRenderer.send("updateData", { paths: this.state.paths });
+        ipcRenderer.send("updateData", this.state.paths);
     }
 
     handlePlatformChange(event: any) {
         console.log(event.target.value);
-        this.setState({ platform: event.target.value });
+        this.setState({ platformArg: event.target.value });
         ipcRenderer.send("updatePlatformData", { platform: event.target.value });
     }
 
@@ -91,10 +91,10 @@ export default class ConfigPage extends Component<IProps, IState> {
                 <ul className="separator">
                     <li className="tile" id="outer">
                         <form className="box" id="inner">
-                            <div id="file-nox-path" className="file has-name is-centered">
+                            <div id="file-platform-path" className="file has-name is-centered">
                                 <div className="field">
                                     <label className="label">Platform Path</label>
-                                    <label id="divBrowseNox">{this.state.paths.nox ? this.state.paths.nox : "-"}</label>
+                                    <label id="divBrowsePlatform">{this.state.paths.platform ? this.state.paths.platform : "-"}</label>
                                     <div className="file is-info has-name is-centered">
                                         <label className="file-label">
                                             <input
@@ -107,7 +107,7 @@ export default class ConfigPage extends Component<IProps, IState> {
                                                     this.setState(prevState => ({
                                                         paths: {
                                                             ...prevState.paths,
-                                                            nox: event.target.files[0].path,
+                                                            platform: event.target.files[0].path,
                                                         }
                                                     }), this.handleChange)
 
@@ -119,7 +119,7 @@ export default class ConfigPage extends Component<IProps, IState> {
                                                 </span>
                                                 <span className="file-label"> Choose a file… </span>
                                             </span>
-                                            <span className="file-name"> {path.basename(this.state.paths.nox) ? path.basename(this.state.paths.nox) : "No file uploaded"} </span>
+                                            <span className="file-name"> {path.basename(this.state.paths.platform) ? path.basename(this.state.paths.platform) : "No file uploaded"} </span>
                                         </label>
                                     </div>
                                 </div>
@@ -200,14 +200,14 @@ export default class ConfigPage extends Component<IProps, IState> {
                     </li>
                     <li className="tile">
                         <div className="select">
-                            <select name="args" id="platform" value={this.state.platform} onChange={(event) => { this.handlePlatformChange(event) }}>
+                            <select name="args" id="platform" value={this.state.platformArg} onChange={(event) => { this.handlePlatformChange(event) }}>
                                 <option value="bluestacks">Bluestacks</option>
                                 <option value="nox">Nox</option>
                             </select>
                         </div>
                     </li>
                     <li>
-                        <p>{this.state.commands.nox}</p>
+                        <p>{this.state.commands.platform}</p>
                         <p>{this.state.commands.script}</p>
                     </li>
                     <li>

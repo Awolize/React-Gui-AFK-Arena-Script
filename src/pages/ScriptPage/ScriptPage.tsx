@@ -34,7 +34,7 @@ export default class ScriptPage extends Component<IProps, IState> {
         ipcRenderer.on("replay-script-status", (event: any, msg: string) => {
             this.setState({ status: msg })
         })
-        ipcRenderer.on("replay-nox", (event: any, msg: string) => {
+        ipcRenderer.on("replay-platform", (event: any, msg: string) => {
             this.appendOutput(msg)
         })
 
@@ -53,7 +53,7 @@ export default class ScriptPage extends Component<IProps, IState> {
         /* eslint-enable react/prop-types */
         ipcRenderer.removeAllListeners('replay-script')
         ipcRenderer.removeAllListeners('replay-script-status')
-        ipcRenderer.removeAllListeners('replay-nox')
+        ipcRenderer.removeAllListeners('replay-platform')
         ipcRenderer.removeAllListeners('Mounted')
     }
 
@@ -78,8 +78,8 @@ export default class ScriptPage extends Component<IProps, IState> {
         }
     }
 
-    startNox() {
-        ipcRenderer.send('startNox', "replay-nox")
+    startPlatform() {
+        ipcRenderer.send('startPlatform', "replay-platform")
     }
 
     startScript() {
@@ -89,8 +89,8 @@ export default class ScriptPage extends Component<IProps, IState> {
     render(): JSX.Element {
         return (
             <section className="tab-content">
-                <button id="btnStartNox" className="button is-success" onClick={() => this.startNox()}>
-                    Start Nox
+                <button id="btnstartPlatform" className="button is-success" onClick={() => this.startPlatform()}>
+                    Start Platform
                 </button>
                 <span> </span>
                 <button id="btnStartScript" className="button is-success" onClick={() => this.startScript()}>

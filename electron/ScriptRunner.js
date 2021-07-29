@@ -7,8 +7,8 @@ const jobList = [""]
 var clientOutput;
 
 class ScriptRunner {
-    constructor(getNoxPath, getScriptPath, getBashPath) {
-        this.getNoxPath = () => { return getNoxPath.call() }
+    constructor(getPlatformPath, getScriptPath, getBashPath) {
+        this.getPlatformPath = () => { return getPlatformPath.call() }
         this.getScriptPath = () => { return getScriptPath.call() }
         this.getBashPath = () => { return getBashPath.call() }
 
@@ -28,7 +28,7 @@ class ScriptRunner {
     async ensuredCompleteStart() {
         let jobIndex = jobList.length;
         this.clearScriptOutput(jobIndex)
-        this.startNox()
+        this.startPlatform()
         await this.sleep(20000)
         this.startScript()
         await this.sleep(10000)
@@ -68,7 +68,7 @@ class ScriptRunner {
             console.log("Unmounted");
         })
 
-        ipcMain.on('startNox', (event, replayChannel) => this.startNox(event, replayChannel))
+        ipcMain.on('startPlatform', (event, replayChannel) => this.startPlatform(event, replayChannel))
         ipcMain.on('startScript', (event, replayChannel) => this.startScript(event, replayChannel))
     }
 
@@ -83,6 +83,8 @@ class ScriptRunner {
         jobList[jobIndex] = `Command: ${command}, args: ${args}\n`
 
         child.on("error", (error) => {
+            console.log(error);
+
             error = error.toString();
             jobList[jobIndex] += error // save on server
 
@@ -95,8 +97,10 @@ class ScriptRunner {
         });
 
         child.stdout.on("data", (data) => {
+
             //Here is the output
             data = data.toString();
+            console.log(data.trim());
             jobList[jobIndex] += data // save on server
 
             if (clientOutput) {
@@ -111,6 +115,7 @@ class ScriptRunner {
         child.stderr.on("data", (data) => {
             //Here is the output from the command
             data = data.toString();
+            console.log(data.trim());
             jobList[jobIndex] += data // save on server
 
             if (clientOutput) {
@@ -134,10 +139,10 @@ class ScriptRunner {
         });
     }
 
-    startNox(event = null, replayChannel = "") {
-        console.log(this.getNoxPath());
-        let noxPath = this.getNoxPath().replaceAll('\\', '/');
-        this.run_script(jobList.length, event, replayChannel, `"${noxPath}"`)
+    startPlatform(event = null, replayChannel = "") {
+        console.log(this.getPlatformPath());
+        let platformPath = this.getPlatformPath().replaceAll('\\', '/');
+        this.run_script(jobList.length, event, replayChannel, `"${platformPath}"`, ["--instance Nougat32"])
     }
 
     startScript(event = null, replayChannel = "") {

@@ -10,10 +10,10 @@ const fs = require('fs')
 
 // Getters doesnt handle the correct 'this'
 var lastModified
-var noxPath
+var platformPath
 var scriptPath
 var bashPath
-var platform
+var platformArg
 
 class StorageHandler {
     constructor() {
@@ -29,16 +29,16 @@ class StorageHandler {
 
 
         lastModified = new Date().toLocaleDateString() + " - " + new Date().toLocaleTimeString()
-        noxPath = path.normalize('C:/Program Files (x86)/Nox/bin/Nox.exe')
+        platformPath = path.normalize('C:/Program Files (x86)/Platform/bin/Platform.exe')
         scriptPath = path.normalize('C:/Users/alexs/Desktop/AFK-Daily-master/AFK-Arena-Script/deploy.sh')
         bashPath = path.normalize('C:/Program Files/Git/bin/sh.exe')
-        platform = "bluestacks"
+        platformArg = "bluestacks"
 
         this.setupIPC()
     }
 
-    getNoxPath() {
-        return noxPath;
+    getPlatformPath() {
+        return platformPath;
     }
     getScriptPath() {
         return scriptPath;
@@ -48,15 +48,15 @@ class StorageHandler {
     }
 
     getCommands(event) {
-        console.log(this.getNoxPath());
-        let noxPath = this.getNoxPath().replaceAll('\\', '/');
-        let noxCommand = `"${noxPath}"`
+        console.log(this.getPlatformPath());
+        let platformPath = this.getPlatformPath().replaceAll('\\', '/');
+        let platformCommand = `"${platformPath}"`
 
         let scriptDir = path.dirname(this.getScriptPath()).replaceAll('\\', '/')
         let scriptName = path.basename(this.getScriptPath()).replaceAll('\\', '/')
 
         let args = ""
-        if (platform == "bluestacks")
+        if (platformArg == "bluestacks")
             args = ['-c ' + `"cd ${scriptDir}; ./${scriptName} -bs"`]
         else
             args = ['-c ' + `"cd ${scriptDir}; ./${scriptName} -n"`]
@@ -64,7 +64,7 @@ class StorageHandler {
         let scriptCommand = `"${this.getBashPath().replaceAll('\\', '/')}"` + " " + args
 
 
-        event.reply('showCommands', JSON.stringify({ nox: noxCommand, script: scriptCommand }, null, 4))
+        event.reply('showCommands', JSON.stringify({ platform: platformCommand, script: scriptCommand }, null, 4))
     }
 
     setupIPC() {
@@ -73,19 +73,19 @@ class StorageHandler {
             try {
                 const fileJson = JSON.parse(fs.readFileSync(this.savePath));
                 lastModified = path.normalize(fileJson.lastModified)
-                noxPath = path.normalize(fileJson.nox)
+                platformPath = path.normalize(fileJson.platform)
                 scriptPath = path.normalize(fileJson.script)
                 bashPath = path.normalize(fileJson.bash)
-                platform = fileJson.platform
+                platformArg = fileJson.platformArg
 
                 console.log(fileJson);
 
                 const settings = {
                     lastModified: lastModified,
-                    nox: noxPath,
+                    platform: platformPath,
                     script: scriptPath,
                     bash: bashPath,
-                    platform: platform
+                    platformArg: platformArg
                 };
 
                 event.reply("newData", JSON.stringify(settings, null, 4))
@@ -98,18 +98,21 @@ class StorageHandler {
         })
 
         ipcMain.on('updateData', (event, paths) => {
-            console.log('updateData');
-            noxPath = paths.nox
-            scriptPath = paths.script
-            bashPath = paths.bash
+            console.log("----------------------");
+            console.log('updateData: ', paths);
 
+            platformPath = paths.platform;
+            scriptPath = paths.script;
+            bashPath = paths.bash;
+
+            console.log(platformPath, scriptPath, bashPath);
 
             this.getCommands(event)
         })
 
         ipcMain.on('updatePlatformData', (event, data) => {
             console.log('updatePlatformData');
-            platform = data.platform
+            platformArg = data.platform
 
             this.getCommands(event)
         })
@@ -121,10 +124,10 @@ class StorageHandler {
             lastModified = new Date().toLocaleDateString() + " - " + new Date().toLocaleTimeString();
             const settings = {
                 lastModified: lastModified,
-                nox: noxPath,
+                platform: platformPath,
                 script: scriptPath,
                 bash: bashPath,
-                platform: platform
+                platformArg: platformArg
             };
 
             fs.writeFileSync(this.savePath, JSON.stringify(settings, null, 4), 'utf-8');
@@ -142,10 +145,10 @@ class StorageHandler {
                 lastModified = new Date().toLocaleDateString() + " - " + new Date().toLocaleTimeString();
                 const settings = {
                     lastModified: lastModified,
-                    nox: noxPath,
+                    platform: platformPath,
                     script: scriptPath,
                     bash: bashPath,
-                    platform: platform
+                    platformArg: platformArg
                 };
 
                 fs.writeFileSync(this.savePath, JSON.stringify(settings, null, 4), 'utf-8');
@@ -159,10 +162,10 @@ class StorageHandler {
     }
 
     resetPaths() {
-        noxPath = path.normalize('C:/Program Files (x86)/Nox/bin/Nox.exe')
+        platformPath = path.normalize('C:/Program Files (x86)/Platform/bin/Platform.exe')
         scriptPath = path.normalize('C:/Users/alexs/Desktop/AFK-Daily-master/AFK-Arena-Script/deploy.sh')
         bashPath = path.normalize('C:/Program Files/Git/bin/sh.exe')
-        platform = "bluestacks"
+        platformArg = "bluestacks"
     }
 }
 
