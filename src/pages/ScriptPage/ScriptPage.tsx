@@ -5,27 +5,40 @@ const ansi_up = new AU.default();
 
 const { ipcRenderer } = window.require('electron');
 
-export default class RunScript extends Component {
-    constructor(props) {
+import "./ScriptPage.css"
+
+interface IProps {
+    callback: ((ipcChannel: string) => void)
+}
+
+interface IState {
+    text: string,
+    status: string
+}
+
+export default class ScriptPage extends Component<IProps, IState> {
+    private messagesEnd = React.createRef<HTMLDivElement>();
+    constructor(props: IProps) {
         super(props)
         this.state = {
             text: "",
             status: ""
         }
+        this.messagesEnd = React.createRef();
     }
 
     componentDidMount() {
-        ipcRenderer.on("replay-script", (event, msg) => {
+        ipcRenderer.on("replay-script", (event: any, msg: string) => {
             this.appendOutput(msg)
         })
-        ipcRenderer.on("replay-script-status", (event, msg) => {
+        ipcRenderer.on("replay-script-status", (event: any, msg: string) => {
             this.setState({ status: msg })
         })
-        ipcRenderer.on("replay-nox", (event, msg) => {
+        ipcRenderer.on("replay-nox", (event: any, msg: string) => {
             this.appendOutput(msg)
         })
 
-        ipcRenderer.on("Mounted", (event, msg) => {
+        ipcRenderer.on("Mounted", (event: any, msg: string) => {
             this.clearScriptOutput()
             this.appendOutput(msg)
         })
@@ -48,7 +61,7 @@ export default class RunScript extends Component {
         this.setState({ text: "", status: "" });
     }
 
-    appendOutput(msg) {
+    appendOutput(msg: any) {
         msg = msg.toString() // convert to string to prevent being object
         msg = ansi_up.ansi_to_html(msg)
         msg = msg.replace(/\n/g, '<br/>');
@@ -58,7 +71,7 @@ export default class RunScript extends Component {
 
     scrollToBottom = () => {
         try {
-            this.messagesEnd.scrollIntoView({ behavior: "auto" });
+            this.messagesEnd?.current?.scrollIntoView({ behavior: "auto" });
         }
         catch (e) {
             console.log(e);
@@ -73,7 +86,7 @@ export default class RunScript extends Component {
         ipcRenderer.send('startScript', "replay-script")
     }
 
-    render() {
+    render(): JSX.Element {
         return (
             <section className="tab-content">
                 <button id="btnStartNox" className="button is-success" onClick={() => this.startNox()}>
@@ -95,8 +108,8 @@ export default class RunScript extends Component {
                 <p id="status">Status: {this.state.status}</p>
                 <div id="command-output" style={{ textAlign: "left" }}>
                     <div>{HTMLReactParser(this.state.text)}</div>
-                    <div style={{ float: "left", clear: "both" }}
-                        ref={(el) => { this.messagesEnd = el; }}>
+                    <div className="field"></div>
+                    <div style={{ float: "left", clear: "both" }} ref={this.messagesEnd}>
                         {' '}
                     </div>
                 </div>

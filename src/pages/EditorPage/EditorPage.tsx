@@ -1,10 +1,17 @@
 import React, { Component } from 'react'
-import "./ConfigEditor.css"
+import "./EditorPage.css"
 
 const { ipcRenderer } = window.require('electron');
 
-export default class ConfigEditor extends Component<{}, { lastModified: Date| String, text: string }> {
-    constructor(props?: any) {
+interface IProps { }
+
+interface IState {
+    lastModified: Date | string,
+    text: string
+}
+
+export default class EditorPage extends Component<IProps, IState> {
+    constructor(props: IProps) {
         super(props);
 
         this.state = {
@@ -13,32 +20,32 @@ export default class ConfigEditor extends Component<{}, { lastModified: Date| St
         }
     }
 
-    componentDidMount() {
-        ipcRenderer.on("readConfig", (event?:any, data?:any) => {
+    componentDidMount(): void {
+        ipcRenderer.on("readConfig", (event: unknown, data: string) => {
             this.setState({ text: data })
         })
 
         this.readConfigFile()
     }
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         ipcRenderer.removeAllListeners('readConfig')
     }
 
-    readConfigFile() {
+    readConfigFile(): void {
         ipcRenderer.send("readConfig");
     }
-    writeConfigFile(data:any) {
+    writeConfigFile(data: string): void {
         ipcRenderer.send("writeConfig", data);
     }
 
-    handleChange(event:any) {
+    handleChange(event: any): void {
         this.setState({ text: event.target.value })
         this.writeConfigFile(event.target.value)
     }
 
 
-    render() {
+    render(): JSX.Element {
         return (
             <section className="tab-content">
                 <textarea

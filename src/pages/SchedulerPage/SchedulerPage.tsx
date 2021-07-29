@@ -1,13 +1,21 @@
 import React, { Component } from 'react'
 import "./SchedulerPage.css"
 
+interface IProps {
+    callback: ((ipcChannel: string) => void)
+}
 
-export default class Scheduler extends Component {
-    constructor(props: any) {
+interface IState {
+    text: string,
+    status: string
+}
+
+export default class SchedulerPage extends Component<IProps, IState> {
+    constructor(props: IProps) {
         super(props);
     }
 
-    render() {
+    render(): JSX.Element {
         return (
             <p>Scheduler</p>
         )
