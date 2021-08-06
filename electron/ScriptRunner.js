@@ -61,11 +61,11 @@ class ScriptRunner {
             clientOutput = event;
             console.log("Mounted");
             if (jobList[jobList.length - 1])
-                event.reply("Mounted", jobList[jobList.length - 1])
+                event.reply("ScriptRunner Mounted", jobList[jobList.length - 1])
         })
         ipcMain.on('Unmounted', (event) => {
             clientOutput = null;
-            console.log("Unmounted");
+            console.log("ScriptRunner Unmounted");
         })
 
         ipcMain.on('startPlatform', (event, replayChannel) => this.startPlatform(event, replayChannel))

@@ -4,7 +4,6 @@ require('./WindowHandler.js'); // Starts a Electron window to populate with Reac
 
 const StorageHandler = require('./StorageHandler.js');
 const storageHandler = new StorageHandler();
-console.log("scriptPath: ", storageHandler.getScriptPath());
 
 const ConfigHandler = require('./ConfigHandler.js');
 const configHandler = new ConfigHandler(storageHandler.getScriptPath);

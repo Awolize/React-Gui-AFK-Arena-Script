@@ -6,20 +6,24 @@ const path = window.require("path");
 
 interface IProps { }
 
+interface IPaths {
+    platform: string,
+    script: string,
+    bash: string
+}
+
+interface ICommandData {
+    platform: string,
+    script: string
+}
+
 interface IState {
     lastModified: Date | string,
-    paths: {
-        platform: string,
-        script: string,
-        bash: string
-    },
-    commands: {
-        platform: string,
-        script: string
-    },
+    paths: IPaths,
+    commands: ICommandData,
     platformArg: string
-
 }
+
 
 export default class ConfigPage extends Component<IProps, IState> {
     constructor(props: IProps) {
@@ -41,26 +45,19 @@ export default class ConfigPage extends Component<IProps, IState> {
     }
 
     componentDidMount() {
-        ipcRenderer.on("newData", (event: any, rawData: string) => {
-            const saveData = JSON.parse(rawData);
+        ipcRenderer.on("newData", (event: any, saveData: IState) => {
             this.setState({
                 lastModified: saveData.lastModified,
                 paths: {
-                    platform: saveData.platform,
-                    script: saveData.script,
-                    bash: saveData.bash
+                    platform: saveData.paths.platform,
+                    script: saveData.paths.script,
+                    bash: saveData.paths.bash
+                },
+                commands: {
+                    platform: saveData.commands.platform,
+                    script: saveData.commands.script
                 },
                 platformArg: saveData.platformArg
-            })
-        })
-
-        ipcRenderer.on("showCommands", (event: any, rawData: string) => {
-            const saveData = JSON.parse(rawData);
-            this.setState({
-                commands: {
-                    platform: saveData.platform,
-                    script: saveData.script
-                }
             })
         })
 

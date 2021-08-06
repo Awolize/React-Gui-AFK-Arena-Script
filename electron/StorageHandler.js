@@ -42,7 +42,7 @@ class StorageHandler {
     getBashPath() {
         return bashPath;
     }
-    getCommands(event) {
+    getCommands() {
         let platformPath = this.getPlatformPath().replaceAll('\\', '/');
         let platformCommand = `"${platformPath}"`
 
@@ -58,7 +58,7 @@ class StorageHandler {
         let scriptCommand = `"${this.getBashPath().replaceAll('\\', '/')}"` + " " + args
 
 
-        event.reply('showCommands', JSON.stringify({ platform: platformCommand, script: scriptCommand }, null, 4))
+        return { platform: platformCommand, script: scriptCommand }
     }
 
     // --------------------
@@ -157,17 +157,42 @@ class StorageHandler {
     // Helper Functions
     // --------------------
     sendData(event, channel) {
+
+        /*
+            interface IPaths {
+                platform: string,
+                script: string,
+                bash: string
+            }
+            
+            interface ICommandData {
+                platform: string,
+                script: string
+            }
+            
+            interface IState {
+                lastModified: Date | string,
+                paths: IPaths,
+                commands: ICommandData,
+                platformArg: string
+            }
+        */
+
+
         const save = {
             lastModified: lastModified,
-            platform: platformPath,
-            script: scriptPath,
-            bash: bashPath,
+            paths: {
+                platform: platformPath,
+                script: scriptPath,
+                bash: bashPath
+            },
+            commands: this.getCommands(),
             platformArg: platformArg,
         };
         event.reply(channel, save)
 
 
-        this.getCommands(event)
+
     }
 
     resetPaths() {
