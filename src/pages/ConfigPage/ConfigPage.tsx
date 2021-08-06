@@ -26,15 +26,15 @@ export default class ConfigPage extends Component<IProps, IState> {
         super(props);
 
         this.state = {
-            lastModified: "...",
+            lastModified: "",
             paths: {
-                platform: "...",
-                script: "...",
-                bash: "..."
+                platform: "",
+                script: "",
+                bash: ""
             },
             commands: {
-                platform: "...",
-                script: "..."
+                platform: "",
+                script: ""
             },
             platformArg: "bluestacks"
         }
