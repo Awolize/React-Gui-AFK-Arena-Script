@@ -3,35 +3,17 @@
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
-    "configurations": [  
+    "configurations": [
         {
             "type": "node",
             "request": "launch",
-            "name": "Electron: Main",
-            "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
-            "program": "${workspaceFolder}/src/electron/main.js",
+            "name": "yarn electron-dev",
+            "cwd": "${workspaceRoot}",
+            "runtimeExecutable": "yarn",
             "runtimeArgs": [
-                ".",
-                "--enable-logging",
-                "--remote-debugging-port=9222",
-            ]
+                "electron-dev"
+            ],
+            "stopOnEntry": false
         },
-          {
-              "name": "Electron: Renderer",
-              "type": "chrome",
-              "request": "attach",
-              "port": 9222,
-              "webRoot": "${workspaceFolder}",
-              "timeout": 30000
-          }
     ],
-    "compounds": [
-          {
-              "name": "Electron: All",
-              "configurations": [
-                  "Electron: Main",
-                  "Electron: Renderer"
-              ]
-          }
-      ]
-    }
+}
