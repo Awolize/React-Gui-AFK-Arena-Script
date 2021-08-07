@@ -27,7 +27,7 @@ export default class ScriptPage extends Component<IProps, IState> {
         this.messagesEnd = React.createRef();
     }
 
-    componentDidMount() {
+    componentDidMount(): void {
         ipcRenderer.on("replay-script", (event: any, msg: string) => {
             this.appendOutput(msg)
         })
@@ -46,7 +46,7 @@ export default class ScriptPage extends Component<IProps, IState> {
         ipcRenderer.send('Mounted')
     }
 
-    componentWillUnmount() {
+    componentWillUnmount(): void {
         /* eslint-disable react/prop-types */
         if (this.props.callback)
             this.props.callback("Unmounted")
@@ -57,11 +57,11 @@ export default class ScriptPage extends Component<IProps, IState> {
         ipcRenderer.removeAllListeners('Mounted')
     }
 
-    clearScriptOutput() {
+    clearScriptOutput(): void {
         this.setState({ text: "", status: "" });
     }
 
-    appendOutput(msg: any) {
+    appendOutput(msg: any): void {
         msg = msg.toString() // convert to string to prevent being object
         msg = ansi_up.ansi_to_html(msg)
         msg = msg.replace(/\n/g, '<br/>');
@@ -78,11 +78,11 @@ export default class ScriptPage extends Component<IProps, IState> {
         }
     }
 
-    startPlatform() {
+    startPlatform(): void {
         ipcRenderer.send('startPlatform', "replay-platform")
     }
 
-    startScript() {
+    startScript(): void {
         ipcRenderer.send('startScript', "replay-script")
     }
 

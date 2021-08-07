@@ -75,7 +75,7 @@ class StorageHandler {
         })
 
         ipcMain.on('updateData', (event, paths) => {
-            console.log('IPC - updateData: ', paths);
+            console.log('IPC - updateData: ');
             console.log("> data: ", paths);
 
             platformPath = paths.platform;
@@ -139,7 +139,7 @@ class StorageHandler {
     writeSave() {
         // write variables to file in json format
         const saveJson = JSON.stringify({
-            lastModified: lastModified,
+            lastModified: new Date().toLocaleDateString() + " - " + new Date().toLocaleTimeString(),
             platform: platformPath,
             script: scriptPath,
             bash: bashPath,
@@ -190,9 +190,6 @@ class StorageHandler {
             platformArg: platformArg,
         };
         event.reply(channel, save)
-
-
-
     }
 
     resetPaths() {

@@ -12,10 +12,6 @@ class ScriptRunner {
         this.getScriptPath = () => { return getScriptPath.call() }
         this.getBashPath = () => { return getBashPath.call() }
 
-
-        // Run every day at 06.00
-        const job = schedule.scheduleJob('0 6 * * *', async () => dailySchedule()); // How often script should run. cronjob style
-
         this.setupIPC()
     }
 
@@ -59,9 +55,9 @@ class ScriptRunner {
     setupIPC() {
         ipcMain.on('Mounted', (event) => {
             clientOutput = event;
-            console.log("Mounted");
+            console.log("ScriptRunner Mounted");
             if (jobList[jobList.length - 1])
-                event.reply("ScriptRunner Mounted", jobList[jobList.length - 1])
+                event.reply("Mounted", jobList[jobList.length - 1])
         })
         ipcMain.on('Unmounted', (event) => {
             clientOutput = null;
