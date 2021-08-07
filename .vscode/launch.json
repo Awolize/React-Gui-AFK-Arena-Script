@@ -5,15 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "node",
+            "command": "yarn run electron-dev",
+            "name": "Run script electron-dev",
             "request": "launch",
-            "name": "yarn electron-dev",
-            "cwd": "${workspaceRoot}",
-            "runtimeExecutable": "yarn",
-            "runtimeArgs": [
-                "electron-dev"
-            ],
-            "stopOnEntry": false
+            "type": "node-terminal"
         },
     ],
 }
