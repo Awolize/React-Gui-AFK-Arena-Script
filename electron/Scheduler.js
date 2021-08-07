@@ -3,7 +3,6 @@ const path = require('path');
 const fs = require('fs');
 const schedule = require('node-schedule');
 
-const job = schedule.scheduleJob(new Date(2000, 0, 0, 0, 0, 0), async () => this.ensuredCompleteStart())
 
 class Scheduler {
     constructor(ensuredCompleteStart) {
@@ -20,6 +19,7 @@ class Scheduler {
 
         this.readSave();
         this.setupIPC();
+        this.start();
     }
 
     // --------------------
@@ -36,6 +36,7 @@ class Scheduler {
             this.schedule = data;
             this.writeSave()
             this.start()
+            this.sendData(event, "SchedulerPageMounted");
         })
     }
 
@@ -56,18 +57,20 @@ class Scheduler {
     }
     writeSave() {
         // write variables to file in json format
+        this.lastModified = new Date().toLocaleDateString() + " - " + new Date().toLocaleTimeString()
+
         const saveJson = JSON.stringify({
-            lastModified: new Date().toLocaleDateString() + " - " + new Date().toLocaleTimeString(),
+            lastModified: this.lastModified,
             schedule: this.schedule,
         }, null, 4);
         fs.writeFileSync(this.saveFile, saveJson, { encoding: 'utf-8' });
     }
 
     start() {
-        job.reschedule(this.schedule);
+        this.job = schedule.scheduleJob(this.schedule, async () => this.ensuredCompleteStart())
     }
     cancel() {
-        job.cancel();
+        this.job.cancel();
     }
 
     sendData(event, channel) {
