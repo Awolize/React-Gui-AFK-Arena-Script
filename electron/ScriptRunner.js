@@ -29,11 +29,11 @@ class ScriptRunner {
         this.startScript()
         await this.sleep(10000)
 
-        while (this.errorInScriptOutput(jobIndex)) {
+        /*while (this.errorInScriptOutput(jobIndex)) {
             this.clearScriptOutput(jobIndex)
             this.startScript()
             await this.sleep(10000)
-        }
+        }*/
     }
 
 

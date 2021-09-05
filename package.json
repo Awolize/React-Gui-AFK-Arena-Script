@@ -18,8 +18,12 @@
         "productName": "React and Electron App",
         "files": [
             "build/**/*",
-            "electron/main.js"
+            "electron/**/*",
+            "dist/**/*",
+            "package.json",
+            "config.json"
         ],
+        "extends": null,
         "extraMetadata": {
             "main": "electron/main.js"
         },
@@ -35,7 +39,7 @@
         "electron": "wait-on http://localhost:3000 && electron .",
         "electron-dev": "concurrently \"yarn run start\" \"yarn run electron\"",
         "preelectron-pack": "yarn run build",
-        "electron-pack": "electron-builder"
+        "electron-pack": "yarn build && electron-builder build --publish never --x64"
     },
     "dependencies": {
         "@electron/remote": "^1.2.0",

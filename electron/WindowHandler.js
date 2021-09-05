@@ -16,7 +16,7 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 
 let mainWindow;
 let tray = null;
-let iconPath = isDev() ? path.join(process.cwd(), 'public/icon.ico') : path.join(__dirname, 'build/icon.ico')
+let iconPath = isDev() ? path.join(process.cwd(), 'public/icon.ico') : path.join(__dirname, 'public/icon.ico')
 
 function createTray() {
     tray = new Tray(iconPath)

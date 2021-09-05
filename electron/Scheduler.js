@@ -35,6 +35,7 @@ class Scheduler {
 
             this.schedule = data;
             this.writeSave()
+            this.cancel();
             this.start()
             this.sendData(event, "SchedulerPageMounted");
         })

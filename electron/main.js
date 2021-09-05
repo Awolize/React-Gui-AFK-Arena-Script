@@ -1,7 +1,5 @@
 require('./WindowHandler.js'); // Starts a Electron window to populate with React
 
-
-
 const StorageHandler = require('./StorageHandler.js');
 const storageHandler = new StorageHandler();
 
